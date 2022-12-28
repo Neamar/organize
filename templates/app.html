@@ -1,0 +1,22 @@
+<h2>Humans</h2>
+{% for human in humans %}
+  <div>
+    <p>Name: {{ human.name }}</p>
+  </div>
+{% endfor %}
+
+<h2>Buildings</h2>
+{% for building in buildings %}
+{% if building.displayable %}
+  <div>
+    <p>Name: {{ building.name }}</p>
+  </div>
+{% endif %}
+{% endfor %}
+
+<h2>Resources</h2>
+<ul>
+{% for key, resource in resources %}
+    <li>{{ resource.qty }} {{ resource.icon }}</li>
+{% endfor %}
+</ul>
