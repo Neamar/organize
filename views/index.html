@@ -15,17 +15,23 @@
         }
       }
     </script>
-    <!-- <script src="/app.js"></script>-->
   </head>
 
   <body>
     <div id="app">
+      <h2>Humains</h2>
+      <human v-for="human in humans" :data="human" :key="human.id"></human>
+
+      <h2>Missions</h2>
+      <pending-mission v-for="pendingMission in pendingMissions" :data="pendingMission" :key="pendingMission.id"></pending-mission>
+
+      <h2>Ressources</h2>
       <ol>
-        <todo-item
-          v-for="item in groceryList"
-          :todo="item"
-          :key="item.id"
-        ></todo-item>
+        <resource
+          v-for="resource in resources"
+          :data="resource"
+          :key="resource.id"
+        ></resource>
       </ol>
     </div>
 

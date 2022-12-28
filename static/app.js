@@ -1,17 +1,6 @@
 import { createApp } from 'vue';
-import TodoItem from './TodoItem.js';
+import App from './components/App.js';
 
-createApp({
-  components: {
-    TodoItem,
-  },
-  data() {
-    return {
-      groceryList: [
-        { id: 0, text: 'Vegetables' },
-        { id: 1, text: 'Cheese' },
-        { id: 2, text: 'Whatever else humans are supposed to eat' },
-      ],
-    };
-  },
-}).mount('#app');
+const app = createApp(App);
+
+app.mount('#app');
