@@ -4,6 +4,9 @@ module.exports = {
     es2022: true,
     browser: true,
   },
+  parserOptions: {
+    sourceType: 'module',
+  },
   plugins: ['prettier'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {

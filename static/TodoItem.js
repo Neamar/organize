@@ -1,8 +1,8 @@
 export default {
   props: {
-    todo: Object
+    todo: Object,
   },
   template: `
   <li>{{ todo.text }}</li>
-  `
-}
+  `,
+};
