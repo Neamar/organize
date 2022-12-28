@@ -1,4 +1,5 @@
 class Human {
+  assignment = null;
   constructor(name, type) {
     this.name = name;
     this.type = type;
@@ -15,14 +16,26 @@ class Building {
 }
 
 class PendingMission {
-  participants = [];
   maxParticipants = 1;
-  constructor(mission) {
-    this.mission = mission;
+  constructor(state, missionName) {
+    this.state = state;
+    this.missionName = missionName;
   }
 
   run(state) {
-    this.mission.run(state);
+    missions[this.missionName].run(state);
+  }
+
+  participants() {
+    return this.state.humans.filter((h) => h.assignment === this);
+  }
+
+  canAddParticipants() {
+    return this.participants().length < this.maxParticipants;
+  }
+
+  potentialParticipants() {
+    return this.state.humans.filter((h) => !h.assignment);
   }
 }
 
@@ -34,6 +47,27 @@ class Resource {
   }
 }
 
+const missions = {
+  basicFoodMission: {
+    name: 'Chercher de la nourriture',
+    run: (state) => {
+      state.resources.rawFood.qty += 3;
+    },
+  },
+  basicWoodMission: {
+    name: 'Chercher du bois',
+    run: (state) => {
+      state.resources.wood.qty += 2;
+    },
+  },
+  basicMetalMission: {
+    name: 'Chercher du métal',
+    run: (state) => {
+      state.resources.metal.qty += 1;
+    },
+  },
+};
+
 const state = {
   resources: {
     day: new Resource('Jour', 0, '📅'),
@@ -42,21 +76,17 @@ const state = {
     wood: new Resource('Bois', 0, '🪵'),
     metal: new Resource('Métal', 0, '⚙️'),
   },
-  missions: {
-    basicFoodMission: {
-      name: 'Chercher de la nourriture',
-      run: (state) => {
-        state.resources.rawFood.qty += 3;
-      },
-    },
-  },
+  availableMissions: ['basicFoodMission', 'basicWoodMission', 'basicMetalMission'],
   pendingMissions: [],
-  humans: [new Human('Marc', 'civil')],
+  humans: [new Human('Marc', 'civil'), new Human('Jenny', 'civil')],
   buildings: [],
 };
 
 function newDay(state) {
-  state.pendingMissions = state.missions.filter((m) => !m.requirements || m.requirements()).map((m) => new PendingMission(m));
+  state.pendingMissions = state.availableMissions
+    .filter((m) => !missions[m].requirements || missions[m].requirements())
+    .map((m) => new PendingMission(state, m));
 }
 
 newDay(state);
+console.log(state);

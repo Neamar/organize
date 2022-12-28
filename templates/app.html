@@ -1,7 +1,7 @@
 <h2>Humans</h2>
 {% for human in humans %}
   <div>
-    <p>Name: {{ human.name }}</p>
+    <p>Nom : {{ human.name }}</p>
   </div>
 {% endfor %}
 
@@ -9,12 +9,34 @@
 {% for building in buildings %}
 {% if building.displayable %}
   <div>
-    <p>Name: {{ building.name }}</p>
+    <p>Nom : {{ building.name }}</p>
   </div>
 {% endif %}
 {% endfor %}
 
-<h2>Resources</h2>
+<h2>Missions</h2>
+{% for pendingMission in pendingMissions %}
+<div>
+  <p>Mission : {{ pendingMission.mission.name }}</p>
+  <ul>
+  {% for human in pendingMission.participants %}
+    <li>{{ human.name }}</li>
+  {% endfor %}
+  {% if pendingMission.canAddParticipants %}
+    <li>
+      <select>
+        <option>--</option>
+        {% for human in pendingMission.potentialParticipants() %}
+        <option>{{ human.name }}</option>
+        {% endfor %}
+      </select>
+    </li>
+  {% endif %}
+  </ul>
+</div>
+{% endfor %}
+
+<h2>Ressources</h2>
 <ul>
 {% for key, resource in resources %}
     <li>{{ resource.qty }} {{ resource.icon }}</li>
