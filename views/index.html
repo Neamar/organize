@@ -19,14 +19,17 @@
 
   <body>
     <div id="app">
+      <button @click="nextDay">Passer à la journée suivante</button>
+
       <h2>Humains</h2>
       <human v-for="human in humans" :data="human" :key="human.id"></human>
 
       <h2>Missions</h2>
       <pending-mission
-        v-for="pendingMission in pendingMissions"
+        v-for="pendingMission in pendingMissionsVisible"
         :mission="pendingMission.mission"
         :humans="humans"
+        :id="pendingMission.id"
         :key="pendingMission.id"
       ></pending-mission>
 

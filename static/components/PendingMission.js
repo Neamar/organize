@@ -1,5 +1,6 @@
 export default {
   props: {
+    id: Number,
     mission: Object,
     humans: Array,
   },
