@@ -7,16 +7,28 @@
 
     <title>Organize</title>
 
-    <script src="/nunjucks.min.js"></script>
-    <script src="/app.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3.2.45/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <!-- <script src="/app.js"></script>-->
   </head>
 
   <body>
-    <main id="app"></main>
+    <div id="app">
+      <ol>
+        <todo-item
+          v-for="item in groceryList"
+          :todo="item"
+          :key="item.id"
+        ></todo-item>
+      </ol>
+    </div>
 
-    <script>
-    const env = nunjucks.configure('/templates', { autoescape: true });
-    document.getElementById('app').innerHTML = env.render('app.html', state);
-    </script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
