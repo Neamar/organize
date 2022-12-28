@@ -21,6 +21,9 @@
     <div id="app">
       <button @click="nextDay">Passer à la journée suivante</button>
 
+      <ul v-if="messages.length > 0">
+        <li v-for="message in messages">{{ message }}</li>
+      </ul>
       <h2>Humains</h2>
       <human v-for="human in humans" :data="human" :key="human.id"></human>
 

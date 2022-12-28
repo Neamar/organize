@@ -9,6 +9,23 @@ const missions = {
       state.resource('rawFood').qty += participants.length * 3;
     },
   },
+  basicExplore: {
+    name: "Explorer l'environnement",
+    maxParticipants: 1,
+    run: (state, participants) => {
+      if (participants.length === 0) {
+        return;
+      }
+
+      const toUnlock = ['basicWoodMission', 'basicMetalMission'];
+      const knownMissions = new Set(state.availableMissions);
+      const nextMission = toUnlock.find((unlockable) => !knownMissions.has(unlockable));
+      if (nextMission) {
+        state.availableMissions.push(nextMission);
+        state.messages.push('Votre recherche est fructueuse ! Vous découvrez ' + nextMission);
+      }
+    },
+  },
   basicWoodMission: {
     name: 'Chercher du bois',
     run: (state, participants) => {
@@ -56,6 +73,7 @@ export default {
   },
   data() {
     return {
+      messages: [],
       resources: [
         { id: 'day', name: 'Jour', qty: 1, icon: '📅' },
         { id: 'human', name: 'Humain', qty: 1, icon: '🧑' },
@@ -77,7 +95,7 @@ export default {
           assignment: null,
         },
       ],
-      availableMissions: ['basicFoodMission', 'basicWoodMission', 'basicMetalMission', 'hiddenCalendar', 'hiddenEat'],
+      availableMissions: ['basicFoodMission', 'basicExplore', 'hiddenCalendar', 'hiddenEat'],
       pendingMissions: [],
       buildings: [],
     };
@@ -89,6 +107,7 @@ export default {
   },
   methods: {
     nextDay() {
+      this.messages = [];
       const pendingMissions = this.pendingMissions.sort((m1, m2) => (m1.mission.order || 0) - (m2.mission.order || 0));
       for (const pendingMission of pendingMissions) {
         pendingMission.mission.run(
