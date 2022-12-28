@@ -23,6 +23,8 @@ const missions = {
   },
 };
 
+let pendingMissionCount = 0;
+
 export default {
   components: {
     Human,
@@ -60,7 +62,7 @@ export default {
   methods: {
     nextDay() {
       this.pendingMissions = this.availableMissions.map((am) => ({
-        participants: [],
+        id: pendingMissionCount++,
         mission: missions[am],
       }));
     },

@@ -23,7 +23,12 @@
       <human v-for="human in humans" :data="human" :key="human.id"></human>
 
       <h2>Missions</h2>
-      <pending-mission v-for="pendingMission in pendingMissions" :data="pendingMission" :key="pendingMission.id"></pending-mission>
+      <pending-mission
+        v-for="pendingMission in pendingMissions"
+        :mission="pendingMission.mission"
+        :humans="humans"
+        :key="pendingMission.id"
+      ></pending-mission>
 
       <h2>Ressources</h2>
       <ol>
