@@ -2,6 +2,7 @@ export default {
   props: {
     id: Number,
     mission: Object,
+    valid: Boolean,
     humans: Array,
   },
   computed: {
@@ -10,6 +11,9 @@ export default {
     },
     potentialParticipants() {
       return this.humans.filter((h) => !h.assignment);
+    },
+    className() {
+      return this.valid ? 'valid' : 'invalid';
     },
   },
   methods: {
@@ -25,7 +29,7 @@ export default {
   },
   template: `
   <div>
-    <p>Mission : {{ mission.name }}</p>
+    <p><span :class="className">Mission</span> : {{ mission.name }} <small v-if="mission.minParticipants">{{ mission.minParticipants }} personnes minimum</small></p>
     <ul>
     <li v-for="participant in participants">{{ participant.name }} <button @click="unassign(participant)">Annuler</button></li>
     <li v-if="potentialParticipants.length > 0 && participants.length < (mission.maxParticipants || Infinity)"><select @change="appendParticipant">

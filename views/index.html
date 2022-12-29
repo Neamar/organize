@@ -15,11 +15,17 @@
         }
       }
     </script>
+
+    <style>
+      .invalid {
+        color: red
+      }
+    </style>
   </head>
 
   <body>
     <div id="app">
-      <button @click="nextDay">Passer à la journée suivante</button>
+      <button @click="nextDay" :disabled="!canMoveToNextDay">Passer à la journée suivante</button>
 
       <ul v-if="messages.length > 0">
         <li v-for="message in messages">{{ message }}</li>
@@ -33,17 +39,22 @@
         :mission="pendingMission.mission"
         :humans="humans"
         :id="pendingMission.id"
+        :valid="pendingMission.valid"
         :key="pendingMission.id"
       ></pending-mission>
 
       <h2>Ressources</h2>
       <ol>
         <resource
-          v-for="resource in resources"
+          v-for="resource in visibleResources"
           :data="resource"
           :key="resource.id"
         ></resource>
       </ol>
+
+      <button @click="save">Enregistrer</button>
+      <button @click="load">Charger</button>
+
     </div>
 
     <script type="module" src="app.js"></script>

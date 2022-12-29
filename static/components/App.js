@@ -1,67 +1,8 @@
 import Human from './Human.js';
 import Resource from './Resource.js';
 import PendingMission from './PendingMission.js';
-
-const missions = {
-  basicFoodMission: {
-    name: 'Chercher de la nourriture',
-    run: (state, participants) => {
-      state.resource('rawFood').qty += participants.length * 3;
-    },
-  },
-  basicExplore: {
-    name: "Explorer l'environnement",
-    maxParticipants: 1,
-    run: (state, participants) => {
-      if (participants.length === 0) {
-        return;
-      }
-
-      const toUnlock = ['basicWoodMission', 'basicMetalMission'];
-      const knownMissions = new Set(state.availableMissions);
-      const nextMission = toUnlock.find((unlockable) => !knownMissions.has(unlockable));
-      if (nextMission) {
-        state.availableMissions.push(nextMission);
-        state.messages.push('Votre recherche est fructueuse ! Vous découvrez ' + nextMission);
-      }
-    },
-  },
-  basicWoodMission: {
-    name: 'Chercher du bois',
-    run: (state, participants) => {
-      state.resource('wood').qty += participants.length * 2;
-    },
-  },
-  basicMetalMission: {
-    name: 'Chercher du métal',
-    run: (state, participants) => {
-      state.resource('metal').qty += participants.length;
-    },
-  },
-  hiddenEat: {
-    hidden: true,
-    order: 1,
-    run: (state) => {
-      const foodResource = state.resource('rawFood');
-      for (let human of state.humans) {
-        if (foodResource.qty >= 2) {
-          foodResource.qty -= 2;
-          human.starving = false;
-        } else {
-          human.starving = true;
-        }
-      }
-    },
-  },
-  hiddenCalendar: {
-    hidden: true,
-    order: 1,
-    run: (state) => {
-      state.resource('day').qty++;
-      state.resource('human').qty = state.humans.length;
-    },
-  },
-};
+import missions from '../constants/missions.js';
+const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions'];
 
 let pendingMissionCount = 0;
 
@@ -77,9 +18,10 @@ export default {
       resources: [
         { id: 'day', name: 'Jour', qty: 1, icon: '📅' },
         { id: 'human', name: 'Humain', qty: 1, icon: '🧑' },
-        { id: 'rawFood', name: 'Nourriture', qty: 10, icon: '🍖' },
-        { id: 'wood', name: 'Bois', qty: 0, icon: '🪵' },
-        { id: 'metal', name: 'Métal', qty: 0, icon: '⚙️' },
+        { id: 'rawFood', name: 'Nourriture', qty: 10, icon: '🍖', max: 15 },
+        { id: 'wood', name: 'Bois', qty: 0, icon: '🪵', used: false },
+        { id: 'rawMetal', name: 'Bouts de métaux', qty: 0, icon: '🗑️', used: false },
+        { id: 'metal', name: 'Métal', qty: 0, icon: '⚙️', used: false },
       ],
       humans: [
         {
@@ -104,9 +46,24 @@ export default {
     pendingMissionsVisible() {
       return this.pendingMissions.filter((pm) => !pm.mission.hidden);
     },
+    visibleResources() {
+      return this.resources.filter((r) => r.used !== false);
+    },
+    erroredMissions() {
+      return this.pendingMissions.filter((pm) => {
+        const participants = this.pmParticipants(pm);
+        const invalid = participants.length != 0 && pm.mission.minParticipants && participants.length < pm.mission.minParticipants;
+        pm.valid = !invalid;
+        return invalid;
+      });
+    },
+    canMoveToNextDay() {
+      return this.erroredMissions.length == 0;
+    },
   },
   methods: {
     nextDay() {
+      // Sort out current day
       this.messages = [];
       const pendingMissions = this.pendingMissions.sort((m1, m2) => (m1.mission.order || 0) - (m2.mission.order || 0));
       for (const pendingMission of pendingMissions) {
@@ -115,17 +72,77 @@ export default {
           this.humans.filter((h) => h.assignment && h.assignment.id === pendingMission.id)
         );
       }
+
+      this.prepDay();
+    },
+    prepDay() {
+      // Clean up
       this.humans.forEach((h) => (h.assignment = null));
+
+      // Auto discover missions
+      for (let missionName in missions) {
+        const mission = missions[missionName];
+        if (mission.autoDiscover && !this.availableMissions.includes(missionName)) {
+          for (let resourceName in mission.autoDiscover) {
+            const r = this.getResource(resourceName);
+            if (r >= mission.autoDiscover[resourceName]) {
+              this.availableMissions.push(missionName);
+              if (mission.onDiscover) {
+                this.messages.push(mission.onDiscover);
+              }
+            }
+          }
+        }
+      }
       this.pendingMissions = this.availableMissions.map((am) => ({
         id: pendingMissionCount++,
         mission: missions[am],
       }));
     },
+    pmParticipants(pm) {
+      return this.humans.filter((h) => h.assignment && h.assignment.id === pm.id);
+    },
     resource(id) {
       return this.resources.find((r) => r.id == id);
     },
+    getResource(id) {
+      return this.resources.find((r) => r.id == id).qty;
+    },
+    setResourceRelative(id, relativeQty) {
+      const resource = this.resource(id);
+      resource.qty += relativeQty;
+
+      if (resource.qty > 0 && !resource.used) {
+        resource.used = true;
+      }
+
+      if (resource.qty < 0) {
+        resource.qty = 0;
+        return false;
+      } else if (resource.max && resource.qty > resource.max) {
+        resource.qty = resource.max;
+        return false;
+      }
+      return true;
+    },
+    save() {
+      const save = {};
+      KEYS_TO_SAVE.forEach((k) => (save[k] = this[k]));
+      localStorage.setItem('save', JSON.stringify(save));
+    },
+    load() {
+      const saveJson = localStorage.getItem('save');
+      if (!saveJson) {
+        this.messages.push('Aucune sauvegarde');
+        return;
+      }
+      const save = JSON.parse(saveJson);
+
+      KEYS_TO_SAVE.forEach((k) => (this[k] = save[k]));
+      this.prepDay();
+    },
   },
   mounted() {
-    this.nextDay();
+    this.prepDay();
   },
 };
