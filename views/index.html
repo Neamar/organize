@@ -25,23 +25,37 @@
 
   <body>
     <div id="app">
-      <button @click="nextDay" :disabled="!canMoveToNextDay">Passer à la journée suivante</button>
+      <button @click="save">Enregistrer</button>
+      <button @click="load">Charger</button>
+
 
       <ul v-if="messages.length > 0">
         <li v-for="message in messages">{{ message }}</li>
       </ul>
       <h2>Humains</h2>
-      <human v-for="human in humans" :data="human" :key="human.id"></human>
+      <human
+        v-for="human in humans"
+        :id="human.id"
+        :name="human.name"
+        :assignment="human.assignment"
+        :pending-missions="pendingMissions"
+        :starving="human.starving"
+        :key="human.id"
+        @unassign="unassign">
+      </human>
 
       <h2>Missions</h2>
-      <pending-mission
+      <mission
         v-for="pendingMission in pendingMissionsVisible"
+        :id="pendingMission.id"
         :mission="pendingMission.mission"
         :humans="humans"
-        :id="pendingMission.id"
+        :participants="pendingMission.participants"
         :valid="pendingMission.valid"
-        :key="pendingMission.id"
-      ></pending-mission>
+        :key="pendingMission.mission.name"
+        @assign="assign"
+        @unassign="unassign"
+      ></mission>
 
       <h2>Ressources</h2>
       <ol>
@@ -52,8 +66,7 @@
         ></resource>
       </ol>
 
-      <button @click="save">Enregistrer</button>
-      <button @click="load">Charger</button>
+      <button @click="nextDay" :disabled="!canMoveToNextDay">Passer à la journée suivante</button>
 
     </div>
 

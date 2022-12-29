@@ -1,14 +1,13 @@
 export default {
+  emits: ['assign', 'unassign'],
   props: {
-    id: Number,
+    id: String,
     mission: Object,
     valid: Boolean,
+    participants: Array,
     humans: Array,
   },
   computed: {
-    participants() {
-      return this.humans.filter((h) => h.assignment == this);
-    },
     potentialParticipants() {
       return this.humans.filter((h) => !h.assignment);
     },
@@ -19,12 +18,11 @@ export default {
   methods: {
     appendParticipant(e) {
       const selectedId = parseInt(e.srcElement.value);
-      const human = this.humans.find((h) => h.id === selectedId);
-      human.assignment = this;
+      this.$emit('assign', { missionId: this.id, humanId: selectedId });
       e.srcElement.value = '';
     },
     unassign(participant) {
-      participant.assignment = null;
+      this.$emit('unassign', { humanId: participant.id });
     },
   },
   template: `

@@ -1,16 +1,14 @@
 import Human from './Human.js';
 import Resource from './Resource.js';
-import PendingMission from './PendingMission.js';
+import Mission from './Mission.js';
 import missions from '../constants/missions.js';
 const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions'];
-
-let pendingMissionCount = 0;
 
 export default {
   components: {
     Human,
     Resource,
-    PendingMission,
+    Mission,
   },
   data() {
     return {
@@ -38,39 +36,50 @@ export default {
         },
       ],
       availableMissions: ['basicFoodMission', 'basicExplore', 'hiddenCalendar', 'hiddenEat'],
-      pendingMissions: [],
       buildings: [],
     };
   },
   computed: {
+    pendingMissions() {
+      return this.availableMissions.map((missionName) => {
+        console.log("pending mission", missionName, this.humans[0])
+        const mission = missions[missionName];
+        const participants = this.humans.filter((h) => h.assignment === missionName);
+        const invalid = participants.length != 0 && mission.minParticipants && participants.length < mission.minParticipants;
+        return {
+          id: missionName,
+          mission: mission,
+          participants: this.humans.filter((h) => h.assignment === missionName),
+          valid: !invalid
+        };
+      });
+    },
     pendingMissionsVisible() {
       return this.pendingMissions.filter((pm) => !pm.mission.hidden);
     },
     visibleResources() {
       return this.resources.filter((r) => r.used !== false);
     },
-    erroredMissions() {
-      return this.pendingMissions.filter((pm) => {
-        const participants = this.pmParticipants(pm);
-        const invalid = participants.length != 0 && pm.mission.minParticipants && participants.length < pm.mission.minParticipants;
-        pm.valid = !invalid;
-        return invalid;
-      });
-    },
     canMoveToNextDay() {
-      return this.erroredMissions.length == 0;
+      return this.pendingMissions.filter(pm => !pm.valid).length == 0;
     },
   },
   methods: {
+    assign({ missionId, humanId }) {
+      const human = this.humans.find((h) => h.id === humanId);
+      human.assignment = missionId;
+    },
+    unassign({ humanId }) {
+      const human = this.humans.find((h) => h.id === humanId);
+      human.assignment = null;
+    },
     nextDay() {
       // Sort out current day
       this.messages = [];
       const pendingMissions = this.pendingMissions.sort((m1, m2) => (m1.mission.order || 0) - (m2.mission.order || 0));
       for (const pendingMission of pendingMissions) {
-        pendingMission.mission.run(
-          this,
-          this.humans.filter((h) => h.assignment && h.assignment.id === pendingMission.id)
-        );
+        const mission = pendingMission.mission;
+        mission.run(this, pendingMission.participants);
       }
 
       this.prepDay();
@@ -94,13 +103,6 @@ export default {
           }
         }
       }
-      this.pendingMissions = this.availableMissions.map((am) => ({
-        id: pendingMissionCount++,
-        mission: missions[am],
-      }));
-    },
-    pmParticipants(pm) {
-      return this.humans.filter((h) => h.assignment && h.assignment.id === pm.id);
     },
     resource(id) {
       return this.resources.find((r) => r.id == id);
@@ -139,7 +141,7 @@ export default {
       const save = JSON.parse(saveJson);
 
       KEYS_TO_SAVE.forEach((k) => (this[k] = save[k]));
-      this.prepDay();
+      // this.prepDay();
     },
   },
   mounted() {

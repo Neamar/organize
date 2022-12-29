@@ -1,4 +1,4 @@
-export default {
+const missions = {
   basicFoodMission: {
     name: 'Chercher de la nourriture',
     run: (state, participants) => {
@@ -18,7 +18,10 @@ export default {
       const nextMission = toUnlock.find((unlockable) => !knownMissions.has(unlockable));
       if (nextMission) {
         state.availableMissions.push(nextMission);
-        state.messages.push('Votre recherche est fructueuse ! Vous découvrez ' + nextMission);
+        state.messages.push(`Votre recherche est fructueuse ! Vous découvrez « ${missions[nextMission].name} »`);
+      } else {
+        state.availableMissions = state.availableMissions.filter((m) => m !== 'basicExplore');
+        state.messages.push(`Plus rien à trouver`);
       }
     },
   },
@@ -82,3 +85,5 @@ export default {
     },
   },
 };
+
+export default missions;
