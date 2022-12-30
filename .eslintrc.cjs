@@ -8,9 +8,9 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['prettier'],
-  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
+  extends: ['eslint:recommended', 'prettier'],
   rules: {
-    semi: 1,
+    'prettier/prettier': 'error',
     camelcase: 0,
     'no-unused-vars': ['warn'],
   },

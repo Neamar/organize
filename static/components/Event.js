@@ -13,7 +13,7 @@ export default {
   computed: {
     event() {
       return events[this.id];
-    }
+    },
   },
   template: `
   <div class="event">

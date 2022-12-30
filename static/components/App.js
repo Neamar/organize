@@ -46,7 +46,7 @@ export default {
   computed: {
     /**
      * @type Array
-    */
+     */
     // @ts-ignore
     pendingMissions() {
       return this.availableMissions.map((missionName) => {
@@ -57,7 +57,7 @@ export default {
           id: missionName,
           mission: mission,
           participants: this.humans.filter((h) => h.assignment === missionName),
-          valid: !invalid
+          valid: !invalid,
         };
       });
     },
@@ -68,11 +68,11 @@ export default {
       return this.resources.filter((r) => r.used !== false);
     },
     canMoveToNextDay() {
-      return this.pendingMissions.filter(pm => !pm.valid).length == 0;
+      return this.pendingMissions.filter((pm) => !pm.valid).length == 0;
     },
     nextEvent() {
       return this.events[0];
-    }
+    },
   },
   methods: {
     assign({ missionId, humanId }) {
@@ -84,7 +84,7 @@ export default {
       human.assignment = null;
     },
     pick({ content }) {
-      const button = events[this.nextEvent].buttons.find(b => b.content === content);
+      const button = events[this.nextEvent].buttons.find((b) => b.content === content);
       button.run && button.run(this);
       this.events.shift();
     },
@@ -120,7 +120,10 @@ export default {
       }
 
       // Add events
-      this.events = Object.entries(events).filter((kv) => kv[1].turn === this.getResource('day')).sort((kv1, kv2) => (kv1[1].order || 0) - (kv2[1].order || 0)).map((kv) => kv[0]);
+      this.events = Object.entries(events)
+        .filter((kv) => kv[1].turn === this.getResource('day'))
+        .sort((kv1, kv2) => (kv1[1].order || 0) - (kv2[1].order || 0))
+        .map((kv) => kv[0]);
     },
     resource(id) {
       return this.resources.find((r) => r.id == id);
