@@ -1,7 +1,9 @@
 import Human from './Human.js';
 import Resource from './Resource.js';
+import Event from './Event.js';
 import Mission from './Mission.js';
 import missions from '../constants/missions.js';
+import events from '../constants/events.js';
 const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions'];
 
 export default {
@@ -9,9 +11,11 @@ export default {
     Human,
     Resource,
     Mission,
+    Event,
   },
   data() {
     return {
+      events: [],
       messages: [],
       resources: [
         { id: 'day', name: 'Jour', qty: 1, icon: '📅' },
@@ -40,9 +44,12 @@ export default {
     };
   },
   computed: {
+    /**
+     * @type Array
+    */
+    // @ts-ignore
     pendingMissions() {
       return this.availableMissions.map((missionName) => {
-        console.log("pending mission", missionName, this.humans[0])
         const mission = missions[missionName];
         const participants = this.humans.filter((h) => h.assignment === missionName);
         const invalid = participants.length != 0 && mission.minParticipants && participants.length < mission.minParticipants;
@@ -63,6 +70,9 @@ export default {
     canMoveToNextDay() {
       return this.pendingMissions.filter(pm => !pm.valid).length == 0;
     },
+    nextEvent() {
+      return this.events[0];
+    }
   },
   methods: {
     assign({ missionId, humanId }) {
@@ -72,6 +82,11 @@ export default {
     unassign({ humanId }) {
       const human = this.humans.find((h) => h.id === humanId);
       human.assignment = null;
+    },
+    pick({ content }) {
+      const button = events[this.nextEvent].buttons.find(b => b.content === content);
+      button.run && button.run(this);
+      this.events.shift();
     },
     nextDay() {
       // Sort out current day
@@ -103,6 +118,9 @@ export default {
           }
         }
       }
+
+      // Add events
+      this.events = Object.entries(events).filter((kv) => kv[1].turn === this.getResource('day')).sort((kv1, kv2) => (kv1[1].order || 0) - (kv2[1].order || 0)).map((kv) => kv[0]);
     },
     resource(id) {
       return this.resources.find((r) => r.id == id);
@@ -141,7 +159,6 @@ export default {
       const save = JSON.parse(saveJson);
 
       KEYS_TO_SAVE.forEach((k) => (this[k] = save[k]));
-      // this.prepDay();
     },
   },
   mounted() {
