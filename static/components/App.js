@@ -4,7 +4,7 @@ import Event from './Event.js';
 import Mission from './Mission.js';
 import missions from '../constants/missions.js';
 import events from '../constants/events.js';
-const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions'];
+const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions', 'events'];
 
 export default {
   components: {
@@ -102,7 +102,6 @@ export default {
     prepDay() {
       // Clean up
       this.humans.forEach((h) => (h.assignment = null));
-
       // Auto discover missions
       for (let missionName in missions) {
         const mission = missions[missionName];

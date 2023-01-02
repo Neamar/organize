@@ -17,7 +17,7 @@ export default {
   },
   template: `
   <div class="event">
-    <p>{{ event.content }}</p>
+    <p v-html="event.content"></p>
     <button v-for="button in event.buttons" @click="pick(button.content)">{{ button.content }}</button>
   </div>
   `,
