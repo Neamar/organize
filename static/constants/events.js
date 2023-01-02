@@ -39,6 +39,18 @@ const events = {
       },
     ],
   },
+  survivor1_2: {
+    turn: 6,
+    content: "S'il était là, d'autres sont probablement présents aussi. Une nouvelle mission est disponible.",
+    buttons: [
+      {
+        content: 'OK',
+        run: (state) => {
+          state.availableMissions.push('findHuman');
+        },
+      },
+    ],
+  },
 };
 
 export default events;

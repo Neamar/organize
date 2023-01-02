@@ -61,6 +61,47 @@ const missions = {
       state.resource('rawFood').max += 10;
     },
   },
+  findHuman: {
+    name: 'Trouver des survivants',
+    maxParticipants: 1,
+    run: (state, participants) => {
+      if (participants.length === 0) {
+        return;
+      }
+      const names = [
+        'Abby',
+        'John',
+        'Sheldon',
+        'Shelly',
+        'Eve',
+        'Samantha',
+        'Rowan',
+        'Kyle',
+        'Janja',
+        'Adam',
+        'Mateo',
+        'Laura',
+        'Justin',
+        'Millie',
+        'Javier',
+        'Cassidy',
+        'Nils',
+      ].sort(() => 0.5 - Math.random());
+      const currentNames = new Set(state.humans.map((h) => h.name));
+      const nextId = Math.max(...state.humans.map((h) => h.id)) + 1;
+      const name = names.find((n) => !currentNames.has(n));
+
+      state.humans.push({
+        id: nextId,
+        name: name,
+        type: 'civilian',
+        assignment: null,
+        starving: true,
+      });
+
+      state.messages.push(`Un nouveau survivant rejoint votre campement : ${name}`);
+    },
+  },
   hiddenEat: {
     hidden: true,
     order: 1,
