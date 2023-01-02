@@ -107,12 +107,19 @@ const missions = {
     order: 1,
     run: (state) => {
       const foodResource = state.resource('rawFood');
-      for (let human of state.humans) {
+      const humans = state.humans.sort((h1, h2) => (h1.starving ? 1 : -1));
+      for (let human of humans) {
         if (foodResource.qty >= 2) {
           foodResource.qty -= 2;
           human.starving = false;
         } else {
-          human.starving = true;
+          if (human.starving) {
+            // Oh no! Don't starve twice...
+            state.humans = state.humans.filter((h) => h.id !== human.id);
+            state.messages.push(`${human.name} est mort de faim...`);
+          } else {
+            human.starving = true;
+          }
         }
       }
     },

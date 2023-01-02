@@ -120,7 +120,7 @@ export default {
 
       // Add events
       this.events = Object.entries(events)
-        .filter((kv) => kv[1].turn === this.getResource('day'))
+        .filter((kv) => (!kv[1].turn || kv[1].turn === this.getResource('day')) && (!kv[1].runIf || kv[1].runIf(this)))
         .sort((kv1, kv2) => (kv1[1].order || 0) - (kv2[1].order || 0))
         .map((kv) => kv[0]);
     },

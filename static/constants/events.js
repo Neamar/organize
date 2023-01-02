@@ -51,6 +51,11 @@ const events = {
       },
     ],
   },
+  defeat: {
+    runIf: (state) => state.humans.length === 0,
+    content: "Hélas, il ne reste plus aucun survivant. La partie s'arrête ici.",
+    buttons: [],
+  },
 };
 
 export default events;
