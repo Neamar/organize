@@ -19,7 +19,7 @@ export default {
       messages: [],
       resources: [
         { id: 'day', name: 'Jour', qty: 1, icon: '📅' },
-        { id: 'human', name: 'Humain', qty: 1, icon: '🧑' },
+        { id: 'human', name: 'Humain', qty: 2, icon: '🧑' },
         { id: 'rawFood', name: 'Nourriture', qty: 10, icon: '🍖', max: 15 },
         { id: 'wood', name: 'Bois', qty: 0, icon: '🪵', used: false },
         { id: 'rawMetal', name: 'Bouts de métaux', qty: 0, icon: '🗑️', used: false },
@@ -44,6 +44,9 @@ export default {
     };
   },
   computed: {
+    availableMissionsSet() {
+      return new Set(this.availableMissions);
+    },
     /**
      * @type import("../constants/missions.js").PendingMission[]
      */
@@ -109,7 +112,7 @@ export default {
       // Auto discover missions
       for (let missionName in missions) {
         const mission = missions[missionName];
-        if (mission.autoDiscover && !this.availableMissions.includes(missionName)) {
+        if (mission.autoDiscover && !this.availableMissionsSet.has(missionName)) {
           for (let resourceName in mission.autoDiscover) {
             const r = this.getResource(resourceName);
             if (r >= mission.autoDiscover[resourceName]) {

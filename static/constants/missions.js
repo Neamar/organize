@@ -17,7 +17,7 @@
  * @typedef {Object} Human
  * @property {Number} id human id
  * @property {String} name human name
- * @property {String} type human type
+ * @property {('civilian'|'engineer'|'military')} type human type
  * @property {String?} assignment mission currently assigned
  * @property {Boolean} starving is the human starving
  */
@@ -51,8 +51,7 @@ const missions = {
       }
 
       const toUnlock = ['basicWoodMission', 'basicMetalMission'];
-      const knownMissions = new Set(state.availableMissions);
-      const nextMission = toUnlock.find((unlockable) => !knownMissions.has(unlockable));
+      const nextMission = toUnlock.find((unlockable) => !state.availableMissionsSet.has(unlockable));
       if (nextMission) {
         state.availableMissions.push(nextMission);
         state.messages.push(`Votre recherche est fructueuse ! Vous découvrez « ${missions[nextMission].name} »`);
