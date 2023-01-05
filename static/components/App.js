@@ -59,13 +59,21 @@ export default {
       return this.availableMissions.map((missionName) => {
         const mission = missions[missionName];
         const participants = this.humans.filter((h) => h.assignment === missionName);
-        const invalid = participants.length != 0 && mission.minParticipants && participants.length < mission.minParticipants;
-        return {
+        const invalidParticipants = participants.length != 0 && mission.minParticipants && participants.length < mission.minParticipants;
+
+        const invalid = invalidParticipants;
+
+        /**
+         * @type import("../constants/missions.js").PendingMission
+         */
+        const pendingMission = {
           id: missionName,
           mission: mission,
           participants: this.humans.filter((h) => h.assignment === missionName),
+          validParticipants: !invalidParticipants,
           valid: !invalid,
         };
+        return pendingMission;
       });
     },
     pendingMissionsVisible() {

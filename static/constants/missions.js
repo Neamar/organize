@@ -28,6 +28,7 @@
  * @property {Number} id mission id
  * @property {Mission} mission the associated mission
  * @property {Human[]} participants the participants
+ * @property {Boolean} validParticipants if the pending mission ihas valid participants or not
  * @property {Boolean} valid if the pending mission is ready to run or not
  */
 
