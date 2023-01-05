@@ -45,7 +45,7 @@ export default {
   },
   computed: {
     /**
-     * @type Array
+     * @type import("../constants/missions.js").PendingMission[]
      */
     // @ts-ignore
     pendingMissions() {
@@ -85,6 +85,10 @@ export default {
     },
     pick({ content }) {
       const button = events[this.nextEvent].buttons.find((b) => b.content === content);
+      if (!button) {
+        throw new Error('Unknown button');
+      }
+
       button.run && button.run(this);
       this.events.shift();
     },

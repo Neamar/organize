@@ -1,3 +1,40 @@
+/**
+ * A mission
+ * @typedef {Object} Mission
+ * @property {Function} run Function to run to execute the mission
+ * @property {String} name Mission name
+ * @property {Number} [maxParticipants=Number.Infinity] max number of participants for the mission
+ * @property {Number} [minParticipants=0] min number of participants for the mission
+ * @property {Object} [autoDiscover] a way to auto discover the mission
+ * @property {Object} [onDiscover] text to display when the mission is discovered
+ * @property {Object} [costs] mission costs
+ * @property {Boolean} [hidden=false] if the mission should be displayed on the UI
+ * @property {Number} [order=0] when the mission should be executed (0 = first, 1 = after, 2 = ...)
+ */
+
+/**
+ * A human
+ * @typedef {Object} Human
+ * @property {Number} id human id
+ * @property {String} name human name
+ * @property {String} type human type
+ * @property {String?} assignment mission currently assigned
+ * @property {Boolean} starving is the human starving
+ */
+
+/**
+ * A pending mission
+ * @typedef {Object} PendingMission
+ * @property {Number} id mission id
+ * @property {Mission} mission the associated mission
+ * @property {Human[]} participants the participants
+ * @property {Boolean} valid if the pending mission is ready to run or not
+ */
+
+/**
+ * Static list of all missions, not reactive
+ * @type {Object.<string, Mission>}
+ */
 const missions = {
   basicFoodMission: {
     name: 'Chercher de la nourriture',
@@ -56,9 +93,14 @@ const missions = {
     autoDiscover: {
       wood: 5,
     },
+    costs: {
+      wood: 5,
+    },
     onDiscover: 'Avec tout ce bois, nous pourrions construire un garde-manger pour augmenter la quantité maximale de nourriture stockée !',
-    run: (state) => {
-      state.resource('rawFood').max += 10;
+    run: (state, participants) => {
+      if (participants.length > 0) {
+        state.resource('rawFood').max += 10;
+      }
     },
   },
   findHuman: {
@@ -89,25 +131,31 @@ const missions = {
       ].sort(() => 0.5 - Math.random());
       const currentNames = new Set(state.humans.map((h) => h.name));
       const nextId = Math.max(...state.humans.map((h) => h.id)) + 1;
-      const name = names.find((n) => !currentNames.has(n));
+      const name = names.find((n) => !currentNames.has(n)) || 'Someone';
 
-      state.humans.push({
+      /**
+       * @type Human
+       */
+      const human = {
         id: nextId,
         name: name,
         type: 'civilian',
         assignment: null,
         starving: true,
-      });
+      };
+
+      state.humans.push(human);
 
       state.messages.push(`Un nouveau survivant rejoint votre campement : ${name}`);
     },
   },
   hiddenEat: {
+    name: 'Nourrir les humains',
     hidden: true,
     order: 1,
     run: (state) => {
       const foodResource = state.resource('rawFood');
-      const humans = state.humans.sort((h1, h2) => (h1.starving ? 1 : -1));
+      const humans = state.humans.sort((h1) => (h1.starving ? -1 : 1));
       for (let human of humans) {
         if (foodResource.qty >= 2) {
           foodResource.qty -= 2;
@@ -125,6 +173,7 @@ const missions = {
     },
   },
   hiddenCalendar: {
+    name: 'Avancer le calendrier',
     hidden: true,
     order: 1,
     run: (state) => {
