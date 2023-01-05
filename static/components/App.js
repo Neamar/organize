@@ -4,7 +4,7 @@ import Event from './Event.js';
 import Mission from './Mission.js';
 import missions from '../constants/missions.js';
 import events from '../constants/events.js';
-const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions', 'events'];
+const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions', 'events', 'pastEvents'];
 
 export default {
   components: {
@@ -40,12 +40,16 @@ export default {
         },
       ],
       availableMissions: ['basicFoodMission', 'basicExplore', 'hiddenCalendar', 'hiddenEat'],
+      pastEvents: [],
       buildings: [],
     };
   },
   computed: {
     availableMissionsSet() {
       return new Set(this.availableMissions);
+    },
+    pastEventsSet() {
+      return new Set(this.pastEvents);
     },
     /**
      * @type import("../constants/missions.js").PendingMission[]
@@ -127,7 +131,12 @@ export default {
 
       // Add events
       this.events = Object.entries(events)
-        .filter((kv) => (!kv[1].turn || kv[1].turn === this.getResource('day')) && (!kv[1].runIf || kv[1].runIf(this)))
+        .filter(
+          ([eventName, event]) =>
+            (!event.turn || event.turn === this.getResource('day')) &&
+            (!event.runIf || event.runIf(this)) &&
+            (event.repeatable || !this.pastEventsSet.has(eventName))
+        )
         .sort((kv1, kv2) => (kv1[1].order || 0) - (kv2[1].order || 0))
         .map((kv) => kv[0]);
     },

@@ -10,6 +10,7 @@
  * @typedef {Object} Event
  * @property {Number} [order=0] Priority for this event, the lower the soonest it'll be displayed
  * @property {Number} [turn=null] Turn this event should activate
+ * @property {Boolean} [repeatable=false] Can this event trigger more than once?
  * @property {Function} [runIf=() => {}] Run if conditions are met
  * @property {String} content Event description
  * @property {Button[]} buttons list of associate buttons
