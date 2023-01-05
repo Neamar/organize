@@ -54,12 +54,8 @@
       <h2>Missions</h2>
       <mission
         v-for="pendingMission in pendingMissionsVisible"
-        :id="pendingMission.id"
-        :mission="pendingMission.mission"
+        :pending-mission="pendingMission"
         :humans="humans"
-        :participants="pendingMission.participants"
-        :valid="pendingMission.valid"
-        :key="pendingMission.mission.name"
         @assign="assign"
         @unassign="unassign"
       ></mission>

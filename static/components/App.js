@@ -63,9 +63,7 @@ export default {
 
         const invalid = invalidParticipants;
 
-        /**
-         * @type import("../constants/missions.js").PendingMission
-         */
+        /** @type import("../constants/missions.js"). PendingMission */
         const pendingMission = {
           id: missionName,
           mission: mission,
