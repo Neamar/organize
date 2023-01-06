@@ -23,12 +23,21 @@
  */
 
 /**
+ * A resource cost for a pending mission
+ * @typedef {Object} PendingMissionResource
+ * @property {Object} resource
+ * @property {Number} qty cost for the mission
+ * @property {Boolean} valid do we have enough
+ */
+
+/**
  * A pending mission
  * @typedef {Object} PendingMission
  * @property {Number} id mission id
  * @property {Mission} mission the associated mission
  * @property {Human[]} participants the participants
- * @property {Boolean} validParticipants if the pending mission ihas valid participants or not
+ * @property {Boolean} validParticipants if the pending mission has valid participants or not
+ * @property {PendingMissionResource[]} resources cost in resources
  * @property {Boolean} valid if the pending mission is ready to run or not
  */
 
@@ -91,7 +100,7 @@ const missions = {
     maxParticipants: 3,
     minParticipants: 3,
     autoDiscover: {
-      wood: 5,
+      wood: 2,
     },
     costs: {
       wood: 5,

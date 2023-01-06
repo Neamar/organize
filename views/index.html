@@ -42,11 +42,8 @@
       <h2>Humains</h2>
       <human
         v-for="human in humans"
-        :id="human.id"
-        :name="human.name"
-        :assignment="human.assignment"
+        :human="human"
         :pending-missions="pendingMissions"
-        :starving="human.starving"
         :key="human.id"
         @unassign="unassign">
       </human>

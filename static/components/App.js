@@ -56,18 +56,40 @@ export default {
      */
     // @ts-ignore
     pendingMissions() {
+      const availableResources = {};
+      this.resources.forEach((r) => (availableResources[r.id] = r.qty));
+
+      this.availableMissions.forEach((missionName) => {
+        const mission = missions[missionName];
+        if (!mission.costs) {
+          return;
+        }
+        Object.entries(mission.costs).forEach(([r, qty]) => {
+          if (this.humans.some((h) => h.assignment === missionName)) {
+            availableResources[r] -= qty;
+          }
+        });
+      });
+
       return this.availableMissions.map((missionName) => {
         const mission = missions[missionName];
         const participants = this.humans.filter((h) => h.assignment === missionName);
-        const invalidParticipants = participants.length != 0 && mission.minParticipants && participants.length < mission.minParticipants;
 
-        const invalid = invalidParticipants;
+        const invalidParticipants = participants.length > 0 && mission.minParticipants && participants.length < mission.minParticipants;
+
+        const hasMissingResources = participants.length > 0 && Object.keys(mission.costs || {}).some((r) => availableResources[r] < 0);
+        const invalid = invalidParticipants || hasMissingResources;
 
         /** @type import("../constants/missions.js"). PendingMission */
         const pendingMission = {
           id: missionName,
           mission: mission,
           participants: this.humans.filter((h) => h.assignment === missionName),
+          resources: Object.keys(mission.costs || {}).map((r) => ({
+            resource: this.resource(r),
+            qty: mission.costs[r],
+            valid: participants.length === 0 || availableResources[r] >= 0,
+          })),
           validParticipants: !invalidParticipants,
           valid: !invalid,
         };

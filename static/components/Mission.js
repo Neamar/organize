@@ -14,12 +14,6 @@ export default {
     potentialParticipants() {
       return this.humans.filter((h) => !h.assignment);
     },
-    className() {
-      return this.pendingMission.valid ? 'valid' : 'invalid';
-    },
-    participantsClassName() {
-      return this.pendingMission.validParticipants ? 'valid' : 'invalid';
-    },
   },
   methods: {
     appendParticipant(e) {
@@ -33,7 +27,7 @@ export default {
   },
   template: `
   <div>
-    <p><span :class="className">Mission</span> : {{ pendingMission.mission.name }} <small v-if="pendingMission.mission.minParticipants" :class="className">{{ pendingMission.mission.minParticipants }} personnes minimum</small></p>
+    <p><span :class="{invalid: !pendingMission.valid}">Mission</span> : {{ pendingMission.mission.name }} <small v-if="pendingMission.mission.minParticipants" :class="{invalid: !pendingMission.validParticipants}">{{ pendingMission.mission.minParticipants }} personnes minimum</small> <small v-for="r in pendingMission.resources" :class="{invalid: !r.valid}">{{ r.qty }} {{ r.resource.icon }}</small></p>
     <ul>
     <li v-for="participant in pendingMission.participants">{{ participant.name }} <button @click="unassign(participant)">Annuler</button></li>
     <li v-if="potentialParticipants.length > 0 && pendingMission.participants.length < (pendingMission.mission.maxParticipants || Infinity)"><select @change="appendParticipant">
