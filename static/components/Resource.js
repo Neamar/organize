@@ -3,6 +3,10 @@ export default {
     data: Object,
   },
   template: `
-  <li>{{ data.qty }}<small v-if="data.max"> / {{ data.max }}</small> {{ data.icon }}</li>
+  <li title="{{data.name}}">
+    {{ data.qty }}
+    <small v-if="data.max"> / {{ data.max }}</small>
+    {{ data.icon }}
+  </li>
   `,
 };

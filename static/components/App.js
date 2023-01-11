@@ -4,7 +4,7 @@ import Event from './Event.js';
 import Mission from './Mission.js';
 import missions from '../constants/missions.js';
 import events from '../constants/events.js';
-const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions', 'events', 'pastEvents'];
+const KEYS_TO_SAVE = ['resources', 'humans', 'availableMissions', 'events', 'pastEvents', 'messages', 'canLockAssignments', 'values'];
 
 export default {
   components: {
@@ -15,15 +15,19 @@ export default {
   },
   data() {
     return {
+      canLockAssignments: false,
+      values: {},
       events: [],
       messages: [],
       resources: [
         { id: 'day', name: 'Jour', qty: 1, icon: '📅' },
         { id: 'human', name: 'Humain', qty: 2, icon: '🧑' },
-        { id: 'rawFood', name: 'Nourriture', qty: 10, icon: '🍖', max: 15 },
+        { id: 'rawFood', name: 'Nourriture', qty: 10, icon: '🍖', max: 10 },
+        { id: 'food', name: 'Nourriture cuisinée', qty: 0, icon: '🍲', used: false },
         { id: 'wood', name: 'Bois', qty: 0, icon: '🪵', used: false },
         { id: 'rawMetal', name: 'Bouts de métaux', qty: 0, icon: '🗑️', used: false },
         { id: 'metal', name: 'Métal', qty: 0, icon: '⚙️', used: false },
+        { id: 'ammo', name: 'Munitions', qty: 0, icon: '💥', used: false },
       ],
       humans: [
         {
@@ -61,6 +65,9 @@ export default {
 
       this.availableMissions.forEach((missionName) => {
         const mission = missions[missionName];
+        if (!mission) {
+          throw new Error('Unknown mission: ' + missionName);
+        }
         if (!mission.costs) {
           return;
         }
@@ -106,6 +113,9 @@ export default {
       return this.pendingMissions.filter((pm) => !pm.valid).length == 0;
     },
     nextEvent() {
+      if (this.events[0]) {
+        this.pastEvents.push(this.events[0]);
+      }
       return this.events[0];
     },
   },
@@ -117,6 +127,11 @@ export default {
     unassign({ humanId }) {
       const human = this.humans.find((h) => h.id === humanId);
       human.assignment = null;
+      human.assignmentLocked = false;
+    },
+    toggleLock({ humanId }) {
+      const human = this.humans.find((h) => h.id === humanId);
+      human.assignmentLocked = !human.assignmentLocked;
     },
     pick({ content }) {
       const button = events[this.nextEvent].buttons.find((b) => b.content === content);
@@ -140,19 +155,18 @@ export default {
     },
     prepDay() {
       // Clean up
-      this.humans.forEach((h) => (h.assignment = null));
+      this.humans.forEach((h) => {
+        if (!h.assignmentLocked) {
+          h.assignment = null;
+        }
+      });
       // Auto discover missions
       for (let missionName in missions) {
         const mission = missions[missionName];
-        if (mission.autoDiscover && !this.availableMissionsSet.has(missionName)) {
-          for (let resourceName in mission.autoDiscover) {
-            const r = this.getResource(resourceName);
-            if (r >= mission.autoDiscover[resourceName]) {
-              this.availableMissions.push(missionName);
-              if (mission.onDiscover) {
-                this.messages.push(mission.onDiscover);
-              }
-            }
+        if (mission.autoDiscover && !this.availableMissionsSet.has(missionName) && mission.autoDiscover(this)) {
+          this.availableMissions.push(missionName);
+          if (mission.onDiscover) {
+            this.messages.push(mission.onDiscover);
           }
         }
       }
@@ -169,12 +183,16 @@ export default {
         .map((kv) => kv[0]);
     },
     resource(id) {
-      return this.resources.find((r) => r.id == id);
+      const r = this.resources.find((r) => r.id == id);
+      if (r) {
+        return r;
+      }
+      throw new Error('Unknown resource: ' + id);
     },
     getResource(id) {
-      return this.resources.find((r) => r.id == id).qty;
+      return this.resource(id).qty;
     },
-    setResourceRelative(id, relativeQty) {
+    setResourceRelative(id, relativeQty, ignoreMaximum = false) {
       const resource = this.resource(id);
       resource.qty += relativeQty;
 
@@ -185,11 +203,19 @@ export default {
       if (resource.qty < 0) {
         resource.qty = 0;
         return false;
-      } else if (resource.max && resource.qty > resource.max) {
+      } else if (resource.max && resource.qty > resource.max && !ignoreMaximum) {
         resource.qty = resource.max;
         return false;
       }
       return true;
+    },
+    removeMission(missionName) {
+      this.availableMissions = this.availableMissions.filter((m) => m !== missionName);
+      this.humans.forEach((p) => {
+        if (p.assignment === missionName) {
+          this.unassign({ humanId: p.id });
+        }
+      });
     },
     save() {
       const save = {};

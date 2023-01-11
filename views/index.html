@@ -28,9 +28,6 @@
       <button @click="save">Enregistrer</button>
       <button @click="load">Charger</button>
 
-      <ul v-if="messages.length > 0">
-        <li v-for="message in messages">{{ message }}</li>
-      </ul>
       <event
         v-if="nextEvent"
         :id="nextEvent"
@@ -39,7 +36,11 @@
       </event>
 
     <div v-if="!nextEvent">
-      <h2>Humains</h2>
+      <ul v-if="messages.length > 0">
+        <li v-for="message in messages">{{ message }}</li>
+      </ul>
+
+      <h2>Campement</h2>
       <human
         v-for="human in humans"
         :human="human"
@@ -53,8 +54,10 @@
         v-for="pendingMission in pendingMissionsVisible"
         :pending-mission="pendingMission"
         :humans="humans"
+        :can-lock-assignments="canLockAssignments"
         @assign="assign"
         @unassign="unassign"
+        @toggle-lock="toggleLock"
       ></mission>
 
       <h2>Ressources</h2>
