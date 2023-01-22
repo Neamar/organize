@@ -57,7 +57,6 @@ const events = {
            * @type import('./missions.js').Human
            */
           const human = {
-            id: 3,
             name: 'Nicholas',
             type: 'civilian',
             assignment: null,
@@ -112,7 +111,6 @@ const events = {
            * @type import('./missions.js').Human
            */
           const human = {
-            id: 4,
             name: 'Sergeant',
             type: 'military',
             assignment: null,

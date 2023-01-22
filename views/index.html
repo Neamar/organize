@@ -32,7 +32,7 @@
         v-if="nextEvent"
         :id="nextEvent"
         :key="nextEvent"
-        @pick="pick">
+        @pick="pickEventDecision">
       </event>
 
     <div v-if="!nextEvent">

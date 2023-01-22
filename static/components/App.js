@@ -119,20 +119,26 @@ export default {
     },
   },
   methods: {
-    assign({ missionId, humanName }) {
+    getHuman(humanName) {
       const human = this.humans.find((h) => h.name === humanName);
-      human.assignment = missionId;
+      if (!human) {
+        throw new Error('Unknown human:' + humanName);
+      }
+      return human;
+    },
+    assign({ missionId, humanName }) {
+      this.getHuman(humanName).assignment = missionId;
     },
     unassign({ humanName }) {
-      const human = this.humans.find((h) => h.name === humanName);
+      const human = this.getHuman(humanName);
       human.assignment = null;
       human.assignmentLocked = false;
     },
     toggleLock({ humanName }) {
-      const human = this.humans.find((h) => h.name === humanName);
+      const human = this.getHuman(humanName);
       human.assignmentLocked = !human.assignmentLocked;
     },
-    pick({ content }) {
+    pickEventDecision({ content }) {
       const button = events[this.nextEvent].buttons.find((b) => b.content === content);
       if (!button) {
         throw new Error('Unknown button');
