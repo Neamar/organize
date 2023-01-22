@@ -71,10 +71,11 @@ export default {
         if (!mission.costs) {
           return;
         }
+
+        // sum all costs
         Object.entries(mission.costs).forEach(([r, qty]) => {
-          if (this.humans.some((h) => h.assignment === missionName)) {
-            availableResources[r] -= qty;
-          }
+          const assignees = this.humans.filter((h) => h.assignment === missionName);
+          availableResources[r] -= assignees.length * qty;
         });
       });
 

@@ -7,7 +7,7 @@
  * @property {Number} [minParticipants=0] min number of participants for the mission
  * @property {Function} [autoDiscover] return true to auto-discover the mission
  * @property {Object} [onDiscover] text to display when the mission is discovered
- * @property {Object} [costs] mission costs
+ * @property {Object} [costs] mission costs per participant
  * @property {Boolean} [hidden=false] if the mission should be displayed on the UI
  * @property {Number} [order=0] when the mission should be executed (0 = first, 1 = after, 2 = ...)
  */
@@ -113,7 +113,7 @@ const missions = {
     name: 'Construire un garde-manger',
     maxParticipants: 3,
     minParticipants: 3,
-    autoDiscover: (state) => state.getResource('wood') >= 2,
+    autoDiscover: (state) => state.getResource('wood') >= 4,
     costs: {
       wood: 5,
     },
@@ -131,7 +131,7 @@ const missions = {
     costs: {
       rawMetal: 2,
     },
-    onDiscover: "Faire fondre ces bouts de métal pourrait nous donner de l'acier utilisable !",
+    onDiscover: "Faire fondre ces bouts de métaux pourrait nous donner de l'acier utilisable !",
     run: (state, participants) => {
       if (participants.length > 0) {
         state.setResourceRelative('rawMetal', -2);
@@ -164,13 +164,13 @@ const missions = {
       }
     },
   },
-  cook: {
+  cookFood: {
     name: 'Cuisiner des plats chauds',
     run: (state, participants) => {
       if (participants.length > 0) {
         const toCook = Math.min(2 * participants.length, state.resource('rawFood').qty);
         state.setResourceRelative('rawFood', -toCook);
-        state.setResourceRelative('food', toCook);
+        state.setResourceRelative('food', toCook + participants.length);
       }
     },
   },
@@ -225,7 +225,11 @@ const missions = {
   makeMilitary: {
     name: 'Former un militaire',
     maxParticipants: 2,
-    run: (state, participants) => {},
+    run: (state, participants) => {
+      if (participants.length > 0) {
+        throw new Error('Not implemented');
+      }
+    },
   },
   hiddenEat: {
     name: 'Nourrir les humains',
@@ -240,6 +244,9 @@ const missions = {
         if (foodResource.qty >= willEat) {
           foodResource.qty -= willEat;
           human.starving = false;
+        } else if (foodResource.qty > 0 && rawFoodResource.qty - foodResource.qty >= willEat) {
+          rawFoodResource.qty -= willEat - foodResource.qty;
+          foodResource.qty = 0;
         } else if (rawFoodResource.qty >= willEat) {
           rawFoodResource.qty -= willEat;
           human.starving = false;
