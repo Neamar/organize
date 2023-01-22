@@ -31,13 +31,11 @@ export default {
       ],
       humans: [
         {
-          id: 1,
           name: 'Marc',
           type: 'civilian',
           assignment: null,
         },
         {
-          id: 2,
           name: 'Jenny',
           type: 'civilian',
           assignment: null,
@@ -121,17 +119,17 @@ export default {
     },
   },
   methods: {
-    assign({ missionId, humanId }) {
-      const human = this.humans.find((h) => h.id === humanId);
+    assign({ missionId, humanName }) {
+      const human = this.humans.find((h) => h.name === humanName);
       human.assignment = missionId;
     },
-    unassign({ humanId }) {
-      const human = this.humans.find((h) => h.id === humanId);
+    unassign({ humanName }) {
+      const human = this.humans.find((h) => h.name === humanName);
       human.assignment = null;
       human.assignmentLocked = false;
     },
-    toggleLock({ humanId }) {
-      const human = this.humans.find((h) => h.id === humanId);
+    toggleLock({ humanName }) {
+      const human = this.humans.find((h) => h.name === humanName);
       human.assignmentLocked = !human.assignmentLocked;
     },
     pick({ content }) {
@@ -214,7 +212,7 @@ export default {
       this.availableMissions = this.availableMissions.filter((m) => m !== missionName);
       this.humans.forEach((p) => {
         if (p.assignment === missionName) {
-          this.unassign({ humanId: p.id });
+          this.unassign({ humanName: p.name });
         }
       });
     },

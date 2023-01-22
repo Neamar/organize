@@ -15,7 +15,6 @@
 /**
  * A human
  * @typedef {Object} Human
- * @property {Number} id human id
  * @property {String} name human name
  * @property {('civilian'|'engineer'|'military')} type human type
  * @property {String?} assignment mission currently assigned
@@ -201,15 +200,12 @@ const missions = {
         'Nils',
       ].sort(() => 0.5 - Math.random());
       const currentNames = new Set(state.humans.map((h) => h.name));
-      // start generated ids at 50
-      const nextId = Math.max(50, Math.max(...state.humans.map((h) => h.id)) + 1);
       const name = names.find((n) => !currentNames.has(n)) || 'Someone';
 
       /**
        * @type Human
        */
       const human = {
-        id: nextId,
         name: name,
         type: 'civilian',
         assignment: null,
@@ -253,7 +249,7 @@ const missions = {
         } else {
           if (human.starving) {
             // Oh no! Don't starve twice...
-            state.humans = state.humans.filter((h) => h.id !== human.id);
+            state.humans = state.humans.filter((h) => h.name !== human.name);
             state.messages.push(`${human.name} est mort de faim...`);
           } else {
             human.starving = true;

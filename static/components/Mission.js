@@ -18,15 +18,15 @@ export default {
   },
   methods: {
     appendParticipant(e) {
-      const selectedId = parseInt(e.srcElement.value);
-      this.$emit('assign', { missionId: this.pendingMission.id, humanId: selectedId });
+      const selectedName = e.srcElement.value;
+      this.$emit('assign', { missionId: this.pendingMission.id, humanName: selectedName });
       e.srcElement.value = '';
     },
     unassign(participant) {
-      this.$emit('unassign', { humanId: participant.id });
+      this.$emit('unassign', { humanName: participant.name });
     },
     toggleLock(participant) {
-      this.$emit('toggleLock', { humanId: participant.id });
+      this.$emit('toggleLock', { humanName: participant.name });
     },
     lockStatusTitle(participant) {
       return participant.assignmentLocked ? 'Ne pas répéter la mission tous les jours' : 'Répéter la mission tous les jours';
@@ -51,7 +51,7 @@ export default {
       <li v-if="potentialParticipants.length > 0 && pendingMission.participants.length < (pendingMission.mission.maxParticipants || Infinity)">
         <select @change="appendParticipant">
           <option selected value="">--</option>
-          <option v-for="human in potentialParticipants" :value="human.id">{{ human.name }}</option>
+          <option v-for="human in potentialParticipants" :value="human.name">{{ human.name }}</option>
         </select>
       </li>
     </ul>

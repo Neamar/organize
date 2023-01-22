@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     unassign() {
-      this.$emit('unassign', { humanId: this.human.id });
+      this.$emit('unassign', { humanName: this.human.name });
     },
   },
   template: `
